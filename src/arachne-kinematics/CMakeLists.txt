@@ -10,11 +10,11 @@ find_package(catkin REQUIRED COMPONENTS
 FIND_PACKAGE(PkgConfig)
 PKG_CHECK_MODULES(EIGEN3 eigen3>=3.2 REQUIRED)
 
-SET(QPOASES_INCLUDE_DIRS "/home/facundo/arachne/install/include")
-SET(QPOASES_LIBRARIES "/home/facundo/arachne/install/lib/libqpOASES.a")
+SET(QPOASES_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../../install/include")
+SET(QPOASES_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/../../install/lib/libqpOASES.a")
 
 catkin_package(
-  INCLUDE_DIRS include
+#  INCLUDE_DIRS include
   CATKIN_DEPENDS roscpp std_msgs
 )
 
