@@ -1,12 +1,7 @@
 // com_control.hpp
 #pragma once
 
-void rot2q(Vector3d& values, const Matrix3d& rotm) {
-    double a = atan2(rotm(2,1), rotm(2,2));
-    double b = atan2(-rotm(2,0), sqrt(pow(rotm(2,1),2)) + (pow(rotm(2,2),2)));
-    double c = atan2(rotm(1,0), rotm(0,0));
-    values << a, b, c;
-}
+#include "utils.h"
 
 void full_kinematics(VectorXd& pos, const Vector3d& q, const Vector3d& posb, const Vector3d& rotb, const int& leg) {
     // This function finds the forward kinematics of each leg of the robot.
