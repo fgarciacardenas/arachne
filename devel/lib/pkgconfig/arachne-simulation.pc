@@ -1,8 +1,0 @@
-prefix=/home/facundo/arachne/devel
-
-Name: arachne-simulation
-Description: Description of arachne-simulation
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

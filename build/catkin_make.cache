@@ -1,2 +1,0 @@
-arachne-control:arachne-kinematics:arachne-simulation
--DCATKIN_DEVEL_PREFIX=/home/facundo/arachne/devel -DCMAKE_INSTALL_PREFIX=/home/facundo/arachne/install -G Unix Makefiles
