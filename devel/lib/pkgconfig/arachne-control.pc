@@ -1,0 +1,8 @@
+prefix=/home/facundo/arachne/devel
+
+Name: arachne-control
+Description: Description of arachne-control
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

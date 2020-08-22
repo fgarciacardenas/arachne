@@ -1,0 +1,8 @@
+prefix=/home/facundo/arachne/devel
+
+Name: arachne-kinematics
+Description: Description of arachne-kinematics
+Version: 0.0.0
+Cflags: -I/home/facundo/arachne/src/arachne-kinematics/include
+Libs: -L${prefix}/lib 
+Requires: roscpp std_msgs

@@ -1,0 +1,885 @@
+<?xml version="1.0"?>
+
+<robot name="arachne">
+
+  <!-- Color of materials -->
+  <material name="yellow">
+    <color rgba="1 1 0 1"/>
+  </material>
+  <material name="blue">
+    <color rgba="0 0 1 1"/>
+  </material>
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+   <material name="grey">
+    <color rgba="0.4 0.4 0.4 1"/>
+  </material>
+
+
+  <!-- The base is declared -->
+  <link name="base">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Base.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.2"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.2"/>
+      <geometry>
+        <box size="0.2 0.2 0.04575"/>
+      </geometry>
+    </collision>
+    <gazebo reference="base">
+      <material>Gazebo/White</material>
+    </gazebo>
+  </link>
+
+  <!-- Fixed joint to add dummy inertia link -->
+  <joint name="base_to_base_inertia" type="fixed">
+      <parent link="base"/>
+      <child link="base_inertia"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+
+  <!-- Dummy inertia link, because KDL cannot have inertia on the base link -->
+  <link name="base_inertia">
+      <inertial>
+          <origin rpy="0 0 0" xyz="0 0 0"/>
+          <mass value="1.8"/>
+          <inertia ixx="0.217391101503" ixy="-0.00132873239126" ixz="-0.00228200226173" iyy="0.639432546734" iyz="-0.00138078263145" izz="0.62414077654"/>
+      </inertial>
+  </link>
+
+
+  <!-- First motors are declared -->
+  <joint name="leg1_motor1" type="revolute">
+    <parent link="base"/>
+    <child link="leg1_shoulder"/>
+    <origin xyz="0.1 0.1 0.2"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="300" velocity="0.1" lower="-1.5708" upper="1.5708"/>
+    <dynamics damping="15" friction="3"/>
+    <sensor name="force_torque" type="force_torque">
+      <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+  <joint name="leg2_motor1" type="revolute">
+    <parent link="base"/>
+    <child link="leg2_shoulder"/>
+    <origin xyz="-0.1 0.1 0.2"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="300" velocity="0.1" lower="-1.5708" upper="1.5708"/>
+    <dynamics damping="15" friction="3"/>
+    <sensor name="force_torque" type="force_torque">
+      <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+  <joint name="leg3_motor1" type="revolute">
+    <parent link="base"/>
+    <child link="leg3_shoulder"/>
+    <origin xyz="-0.1 -0.1 0.2"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="300" velocity="0.1" lower="-1.5708" upper="1.5708"/>
+    <dynamics damping="15" friction="3"/>
+    <sensor name="force_torque" type="force_torque">
+      <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+  <joint name="leg4_motor1" type="revolute">
+    <parent link="base"/>
+    <child link="leg4_shoulder"/>
+    <origin xyz="0.1 -0.1 0.2"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="300" velocity="0.1" lower="-1.5708" upper="1.5708"/>
+    <dynamics damping="15" friction="3"/>
+    <sensor name="force_torque" type="force_torque">
+      <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+
+  <!-- Shoulders are declared -->
+  <link name="leg1_shoulder">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Shoulder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 -0.785398" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5708 0 -0.785398" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.225" radius="0.023"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.095924"/>
+      <mass value="0.1118" />
+      <inertia ixx="0.001947133" ixy="0" ixz="0" iyy="0.001408573" iyz="0" izz="0.000804606" />
+    </inertial>
+  </link>
+  <gazebo reference="leg1_shoulder">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <link name="leg2_shoulder">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Shoulder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0.785398" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5708 0 0.785398" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.225" radius="0.023"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.095924"/>
+      <mass value="0.1118" />
+      <inertia ixx="0.001947133" ixy="0" ixz="0" iyy="0.001408573" iyz="0" izz="0.000804606" />
+    </inertial>
+  </link>
+  <gazebo reference="leg2_shoulder">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <link name="leg3_shoulder">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Shoulder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 2.35619" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5708 0 2.35619" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.225" radius="0.023"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.095924"/>
+      <mass value="0.1118" />
+      <inertia ixx="0.001947133" ixy="0" ixz="0" iyy="0.001408573" iyz="0" izz="0.000804606" />
+    </inertial>
+  </link>
+  <gazebo reference="leg3_shoulder">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <link name="leg4_shoulder">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Shoulder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 -2.35619" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5708 0 -2.35619" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.225" radius="0.023"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.095924"/>
+      <mass value="0.1118" />
+      <inertia ixx="0.001947133" ixy="0" ixz="0" iyy="0.001408573" iyz="0" izz="0.000804606" />
+    </inertial>
+  </link>
+  <gazebo reference="leg4_shoulder">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+
+  <!-- Second motors are declared -->
+  <joint name="leg1_motor2" type="revolute">
+    <parent link="leg1_shoulder"/>
+    <child link="leg1_femur"/>
+    <origin xyz="0.036062 0.036062 -0.00415" rpy="0 0 -0.785398"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="300" velocity="0.1" lower="-1.5708" upper="1.5708"/>
+    <dynamics damping="15" friction="3"/>
+    <sensor name="force_torque" type="force_torque">
+      <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+  <joint name="leg2_motor2" type="revolute">
+    <parent link="leg2_shoulder"/>
+    <child link="leg2_femur"/>
+    <origin xyz="-0.036062 0.036062 -0.00415" rpy="0 0 0.785398"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="300" velocity="0.1" lower="-1.5708" upper="1.5708"/>
+    <dynamics damping="15" friction="3"/>
+    <sensor name="force_torque" type="force_torque">
+      <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+  <joint name="leg3_motor2" type="revolute">
+    <parent link="leg3_shoulder"/>
+    <child link="leg3_femur"/>
+    <origin xyz="-0.036062 -0.036062 -0.00415" rpy="0 0 2.35619"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="300" velocity="0.1" lower="-1.5708" upper="1.5708"/>
+    <dynamics damping="15" friction="3"/>
+    <sensor name="force_torque" type="force_torque">
+      <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+  <joint name="leg4_motor2" type="revolute">
+    <parent link="leg4_shoulder"/>
+    <child link="leg4_femur"/>
+    <origin xyz="0.036062 -0.036062 -0.00415" rpy="0 0 -2.35619"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="300" velocity="0.1" lower="-1.5708" upper="1.5708"/>
+    <dynamics damping="15" friction="3"/>
+    <sensor name="force_torque" type="force_torque">
+      <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+
+  <!-- Femurs are declared -->
+  <link name="leg1_femur">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Femur.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.225" radius="0.023"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.095924"/>
+      <mass value="0.1118" />
+      <inertia ixx="0.001947133" ixy="0" ixz="0" iyy="0.001408573" iyz="0" izz="0.000804606" />
+    </inertial>
+  </link>
+  <gazebo reference="leg1_femur">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <link name="leg2_femur">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Femur.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.225" radius="0.023"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.095924"/>
+      <mass value="0.1118" />
+      <inertia ixx="0.001947133" ixy="0" ixz="0" iyy="0.001408573" iyz="0" izz="0.000804606" />
+    </inertial>
+  </link>
+  <gazebo reference="leg2_femur">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <link name="leg3_femur">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Femur.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.225" radius="0.023"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.095924"/>
+      <mass value="0.1118" />
+      <inertia ixx="0.001947133" ixy="0" ixz="0" iyy="0.001408573" iyz="0" izz="0.000804606" />
+    </inertial>
+  </link>
+  <gazebo reference="leg3_femur">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <link name="leg4_femur">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Femur.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.225" radius="0.023"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.095924"/>
+      <mass value="0.1118" />
+      <inertia ixx="0.001947133" ixy="0" ixz="0" iyy="0.001408573" iyz="0" izz="0.000804606" />
+    </inertial>
+  </link>
+  <gazebo reference="leg4_femur">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+
+  <!-- Third motors are declared -->
+  <joint name="leg1_motor3" type="revolute">
+    <parent link="leg1_femur"/>
+    <child link="leg1_tibia"/>
+    <origin xyz="0 0.1 0.07"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="300" velocity="0.1" lower="-0.785398" upper="2.35619"/>
+    <dynamics damping="15" friction="3"/>
+    <sensor name="force_torque" type="force_torque">
+      <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+  <joint name="leg2_motor3" type="revolute">
+    <parent link="leg2_femur"/>
+    <child link="leg2_tibia"/>
+    <origin xyz="0 0.1 0.07"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="300" velocity="0.1" lower="-0.785398" upper="2.35619"/>
+    <dynamics damping="15" friction="3"/>
+    <sensor name="force_torque" type="force_torque">
+      <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+  <joint name="leg3_motor3" type="revolute">
+    <parent link="leg3_femur"/>
+    <child link="leg3_tibia"/>
+    <origin xyz="0 0.1 0.07"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="300" velocity="0.1" lower="-0.785398" upper="2.35619"/>
+    <dynamics damping="15" friction="3"/>
+    <sensor name="force_torque" type="force_torque">
+      <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+  <joint name="leg4_motor3" type="revolute">
+    <parent link="leg4_femur"/>
+    <child link="leg4_tibia"/>
+    <origin xyz="0 0.1 0.07"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="300" velocity="0.1" lower="-0.785398" upper="2.35619"/>
+    <dynamics damping="15" friction="3"/>
+    <sensor name="force_torque" type="force_torque">
+      <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+
+  <!-- Tibias are declared -->
+  <link name="leg1_tibia">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Tibia.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="0.610865 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.2" radius="0.02"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.095924"/>
+      <mass value="0.1118" />
+      <inertia ixx="0.001947133" ixy="0" ixz="0" iyy="0.001408573" iyz="0" izz="0.000804606" />
+    </inertial>
+  </link>
+  <gazebo reference="leg1_tibia">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <link name="leg2_tibia">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Tibia.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="0.610865 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.2" radius="0.02"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.095924"/>
+      <mass value="0.1118" />
+      <inertia ixx="0.001947133" ixy="0" ixz="0" iyy="0.001408573" iyz="0" izz="0.000804606" />
+    </inertial>
+  </link>
+  <gazebo reference="leg2_tibia">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <link name="leg3_tibia">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Tibia.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="0.610865 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.2" radius="0.02"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.095924"/>
+      <mass value="0.1118" />
+      <inertia ixx="0.001947133" ixy="0" ixz="0" iyy="0.001408573" iyz="0" izz="0.000804606" />
+    </inertial>
+  </link>
+  <gazebo reference="leg3_tibia">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <link name="leg4_tibia">
+    <visual>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Tibia.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="0.610865 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.2" radius="0.02"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.095924"/>
+      <mass value="0.1118" />
+      <inertia ixx="0.001947133" ixy="0" ixz="0" iyy="0.001408573" iyz="0" izz="0.000804606" />
+    </inertial>
+  </link>
+  <gazebo reference="leg4_tibia">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+
+  <!-- End-effector joints -->
+  <joint name="leg1_fix" type="fixed">
+    <parent link="leg1_tibia"/>
+    <child link="leg1_end"/>
+    <origin xyz="0 0.068869 -0.184069"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="300" velocity="0.1" lower="-1.57" upper="1.57"/>
+  </joint>
+
+  <joint name="leg2_fix" type="fixed">
+    <parent link="leg2_tibia"/>
+    <child link="leg2_end"/>
+    <origin xyz="0 0.068869 -0.184069"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="300" velocity="0.1" lower="-1.57" upper="1.57"/>
+  </joint>
+
+  <joint name="leg3_fix" type="fixed">
+    <parent link="leg3_tibia"/>
+    <child link="leg3_end"/>
+    <origin xyz="0 0.068869 -0.184069"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="300" velocity="0.1" lower="-1.57" upper="1.57"/>
+  </joint>
+
+  <joint name="leg4_fix" type="fixed">
+    <parent link="leg4_tibia"/>
+    <child link="leg4_end"/>
+    <origin xyz="0 0.068869 -0.184069"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="300" velocity="0.1" lower="-1.57" upper="1.57"/>
+  </joint>
+
+
+  <!-- End-effectors are declared -->
+  <link name="leg1_end">
+    <visual>
+      <geometry>
+        <sphere radius="0.0075"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.0075"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0.8</mu>
+            <mu2>0.8</mu2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.004" />
+      <inertia ixx="1.7067e-7" ixy="0" ixz="0" iyy="1.7067e-7" iyz="0" izz="1.7067e-7" />
+    </inertial>
+  </link>
+  <gazebo reference="leg1_end">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <link name="leg2_end">
+    <visual>
+      <geometry>
+        <sphere radius="0.0075"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.0075"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0.8</mu>
+            <mu2>0.8</mu2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.004" />
+      <inertia ixx="1.7067e-7" ixy="0" ixz="0" iyy="1.7067e-7" iyz="0" izz="1.7067e-7" />
+    </inertial>
+  </link>
+  <gazebo reference="leg2_end">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <link name="leg3_end">
+    <visual>
+      <geometry>
+        <sphere radius="0.0075"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.0075"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0.8</mu>
+            <mu2>0.8</mu2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.004" />
+      <inertia ixx="1.7067e-7" ixy="0" ixz="0" iyy="1.7067e-7" iyz="0" izz="1.7067e-7" />
+    </inertial>
+  </link>
+  <gazebo reference="leg3_end">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <link name="leg4_end">
+    <visual>
+      <geometry>
+        <sphere radius="0.0075"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.0075"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0.8</mu>
+            <mu2>0.8</mu2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.004" />
+      <inertia ixx="1.7067e-7" ixy="0" ixz="0" iyy="1.7067e-7" iyz="0" izz="1.7067e-7" />
+    </inertial>
+  </link>
+  <gazebo reference="leg4_end">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+
+  <!-- Camera -->
+  <link name="camera_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.005 0.04 0.04"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://arachne-simulation/urdf/meshes/Camera.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+
+    <inertial>
+      <mass value="0.01" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <box_inertia m="0.01" x="0.005" y="0.04" z="0.04" />
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+  <gazebo reference="camera_link">
+    <material>Gazebo/Green</material>
+  </gazebo>
+
+  <joint name="camera_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz=".075 0 0.228" rpy="0 0 0"/>
+    <parent link="base"/>
+    <child link="camera_link"/>
+  </joint>
+
+  <gazebo reference="camera_link">
+    <sensor type="camera" name="camera1">
+      <update_rate>30.0</update_rate>
+      <camera name="head">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>800</width>
+          <height>800</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <!-- Noise is sampled independently per pixel on each frame.  
+               That pixel's noise value is added to each of its color
+               channels, which at that point lie in the range [0,1]. -->
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>charly/camera1</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_link</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- Transmissions -->
+  <transmission name="tran1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="leg1_motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leg1_servo1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="leg1_motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leg1_servo2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran3">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="leg1_motor3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leg1_servo3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran4">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="leg2_motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leg2_servo1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran5">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="leg2_motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leg2_servo2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran6">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="leg2_motor3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leg2_servo3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran7">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="leg3_motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leg3_servo1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran8">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="leg3_motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leg3_servo2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran9">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="leg3_motor3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leg3_servo3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran10">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="leg4_motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leg4_servo1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran11">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="leg4_motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leg4_servo2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran12">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="leg4_motor3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="leg4_servo3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  
+
+   <!-- Plugin: ros_control -->
+   <gazebo>
+     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+       <robotNamespace>/robot</robotNamespace>
+       <legacyModeNS>true</legacyModeNS>
+     </plugin>
+   </gazebo>
+
+</robot>
