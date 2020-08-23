@@ -41,9 +41,8 @@ void print_configuration(MatrixXd& qf, std::ofstream& myfile, const Parameters& 
     while (qf(i,4) != 0) {
         for (int j = 0; j < 18; j++) {
             myfile << qf(i,j);
-            if (j < 17) {
-                myfile << ',';  
-            } 
+            if (j < 17)
+                myfile << ',';
         }
         myfile << '\n';
         i++;

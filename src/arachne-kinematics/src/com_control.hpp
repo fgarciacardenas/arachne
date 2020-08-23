@@ -1,7 +1,7 @@
 // com_control.hpp
 #pragma once
 
-#include "utils.h"
+#include "utils.hpp"
 
 void full_kinematics(VectorXd& pos, const Vector3d& q, const Vector3d& posb, const Vector3d& rotb, const int& leg) {
     // This function finds the forward kinematics of each leg of the robot.
@@ -16,9 +16,9 @@ void full_kinematics(VectorXd& pos, const Vector3d& q, const Vector3d& posb, con
     const double r4 = 10.253;  // Distance from base to servo 1
 
     // Denavit - Hartenberg matrices
-    denavit_hartenberg(m_link1, q(0), pi / 2, r1, 0);
-    denavit_hartenberg(m_link2, q(1) + pi / 2, pi, -r2, 0);
-    denavit_hartenberg(m_link3, q(2), pi, -r3, 0);
+    dh(m_link1, q(0), pi / 2, r1, 0);
+    dh(m_link2, q(1) + pi / 2, pi, -r2, 0);
+    dh(m_link3, q(2), pi, -r3, 0);
 
     // Homogeneous Transformation Matrix - Reposition in respect to position and orientation of the base
     q2rot(rotm, rotb(0), rotb(1), rotb(2));
@@ -30,16 +30,16 @@ void full_kinematics(VectorXd& pos, const Vector3d& q, const Vector3d& posb, con
 
     // Position of the legs with respect to the base
     if (leg == 1) {
-        reposition_leg(repos_leg, -3 * pi / 4, r4, -r4);
+        leg2base(repos_leg, -3 * pi / 4, r4, -r4);
     }
     else if (leg == 2) {
-        reposition_leg(repos_leg, -pi / 4, r4, r4);
+        leg2base(repos_leg, -pi / 4, r4, r4);
     }
     else if (leg == 3) {
-        reposition_leg(repos_leg, 3 * pi / 4, -r4, -r4);
+        leg2base(repos_leg, 3 * pi / 4, -r4, -r4);
     }
     else {
-        reposition_leg(repos_leg, pi / 4, -r4, r4);
+        leg2base(repos_leg, pi / 4, -r4, r4);
     }
 
     // Returns the position of every link in the system
@@ -68,11 +68,11 @@ void com_kinematics(VectorXd& position, const Vector3d& q, const int& leg, const
     Matrix4d m_1, m_2t, m_2, m_3t, m_3, trans, repos_leg;
 
     // Denavit - Hartenberg matrices
-    denavit_hartenberg(m_1, q(0), pi / 2, r1, 0);
-    denavit_hartenberg(m_2t, q(1) + pi / 2, pi, -r2t, 0);
-    denavit_hartenberg(m_2 ,q(1) + pi / 2, pi, -r2, 0);
-    denavit_hartenberg(m_3t, q(2), pi, -r3t, 0);
-    denavit_hartenberg(m_3, q(2), pi, -r3, 0);
+    dh(m_1, q(0), pi / 2, r1, 0);
+    dh(m_2t, q(1) + pi / 2, pi, -r2t, 0);
+    dh(m_2 ,q(1) + pi / 2, pi, -r2, 0);
+    dh(m_3t, q(2), pi, -r3t, 0);
+    dh(m_3, q(2), pi, -r3, 0);
 
     // Homogeneous Transformation Matrix - Reposition in respect to position and orientation of the base
     q2rot(rotm, rotb(0), rotb(1), rotb(2));
@@ -83,18 +83,14 @@ void com_kinematics(VectorXd& position, const Vector3d& q, const int& leg, const
              0, 0, 0, 1;
 
     // Position of the legs with respect to the base
-    if (leg == 1) {
-        reposition_leg(repos_leg, -3 * pi / 4, r4, -r4);
-    }
-    else if (leg == 2) {
-        reposition_leg(repos_leg, -pi / 4, r4, r4);
-    }
-    else if (leg == 3) {
-        reposition_leg(repos_leg, 3 * pi / 4, -r4, -r4);
-    }
-    else {
-        reposition_leg(repos_leg, pi / 4, -r4, r4);
-    }
+    if (leg == 1)
+        leg2base(repos_leg, -3 * pi / 4, r4, -r4);
+    else if (leg == 2)
+        leg2base(repos_leg, -pi / 4, r4, r4);
+    else if (leg == 3)
+        leg2base(repos_leg, 3 * pi / 4, -r4, -r4);
+    else
+        leg2base(repos_leg, pi / 4, -r4, r4);
     
     // Location of center of mass
     // Position and weight of the center of mass

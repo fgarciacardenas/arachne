@@ -12,9 +12,9 @@
 #include "forward_kinematics.hpp"
 #include "inverse_kinematics.hpp"
 #include "control.hpp"
-//#include "com_control.hpp"
-//#include "printConfig.hpp"
-//#include "walking.hpp"
+#include "com_control.hpp"
+#include "printConfig.hpp"
+#include "walking.hpp"
 
 
 int main(int argc, char **argv) {
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
     VectorXd q = VectorXd::Zero(18);
     Vector3d com_xd;
     Parameters parameters;
-    MatrixXd qf(parameters.max_iterations, 18);
+    MatrixXd qf(parameters.max_iter, 18);
     Legs pos;
     
     pos.update_position(q);
@@ -91,13 +91,12 @@ int main(int argc, char **argv) {
 
     // Desired position[posb, leg1, leg2, leg3, leg4, rotb]:
     VectorXd xd(18);
-    xd.segment( 0, 3) << 0, 0, 0;
-    xd.segment( 3, 3) << 0 * pi / 180, 0 * pi / 180, 0 * pi / 180;
-    xd.segment( 6, 3) << pos.leg1(0), pos.leg1(1), pos.leg1(2);
-    xd.segment( 9, 3) << pos.leg2(0), pos.leg2(1), pos.leg2(2)+2;
-    xd.segment(12, 3) << pos.leg3(0), pos.leg3(1), pos.leg3(2);
-    xd.segment(15, 3) << pos.leg4(0), pos.leg4(1), pos.leg4(2);
-    
+    xd.segment(0, 3)  << 0, 0, 0;
+    xd.segment(3, 3)  << pos.leg1(0), pos.leg1(1), pos.leg1(2) + 2;
+    xd.segment(6, 3)  << pos.leg2(0), pos.leg2(1), pos.leg2(2) + 2;
+    xd.segment(9, 3)  << pos.leg3(0), pos.leg3(1), pos.leg3(2) + 2;
+    xd.segment(12, 3) << pos.leg4(0), pos.leg4(1), pos.leg4(2) + 2;
+    xd.segment(15, 3) << 0 * pi / 180, 0 * pi / 180, 0 * pi / 180;
 
     // Desired position of COM
     //com_xd = cmass(q);
@@ -126,31 +125,31 @@ int main(int argc, char **argv) {
     
     int count = 0;
 
-    // // Valores para la caminata
-    // int ind = 0;
-    // VectorXd posd(4);
-    // std::cout << "Posicion actual: \n" << " xa: ";
-    // std::cin >> posd(0);
-    // std::cout << " ya: ";
-    // std::cin >> posd(1);
-    // std::cout << "Posicion deseada: \n" << " xd: ";
-    // std::cin >> posd(2);
-    // std::cout << " yd: ";
-    // std::cin >> posd(3);
-    // MatrixXd final(18,300);
-    // walking(posd, pos, final, ind);
+    // Valores para la caminata
+    int ind = 0;
+    VectorXd posd(4);
+    std::cout << "Posicion actual: \n" << " xa: ";
+    std::cin >> posd(0);
+    std::cout << " ya: ";
+    std::cin >> posd(1);
+    std::cout << "Posicion deseada: \n" << " xd: ";
+    std::cin >> posd(2);
+    std::cout << " yd: ";
+    std::cin >> posd(3);
+    MatrixXd final(18,300);
+    walking(posd, pos, final, ind);
 
     // Se escriben los valores en un archivo
-    //std::ofstream myfile;
-    //myfile.open("charlyposgait.txt");
+    std::ofstream myfile;
+    myfile.open("charlyposgait.txt");
 
     while (ros::ok()) {  
         //std::cout << "Numero de paso" << endl;
         //std::cin >> count;
         //auto start = std::chrono::system_clock::now();
         // Quadratic program
-        quadratic_program(qf, q, xd, parameters, com_xd, pos);
-        //quad_prog(qf, q, final.col(count), parameters, com_xd, pos);
+        //quad_prog(qf, q, xd, parameters, com_xd, pos);
+        quad_prog(qf, q, final.col(count), parameters, com_xd, pos);
         
         //auto end = std::chrono::system_clock::now();
         //std::chrono::duration<float,std::milli> duration = end - start;
@@ -162,29 +161,29 @@ int main(int argc, char **argv) {
         //compare(final.col(count), com_xd, pos);
         //std::cout << endl << q << endl;
 
-        j1.data = q(0);
-        j2.data = q(1);
-        j3.data = q(2);
-        j4.data = q(3);
-        j5.data = q(4);
-        j6.data = q(5);
-        j7.data = q(6);
-        j8.data = q(7);
-        j9.data = q(8);
-        j10.data = q( 9);
-        j11.data = q(10);
-        j12.data = q(11);
-        j13.data = q(12);
-        j14.data = q(13);
-        j15.data = q(14);
+        j1.data = q(3);
+        j2.data = q(4);
+        j3.data = q(5);
+        j4.data = q(6);
+        j5.data = q(7);
+        j6.data = q(8);
+        j7.data = q(9);
+        j8.data = q(10);
+        j9.data = q(11);
+        j10.data = q(12);
+        j11.data = q(13);
+        j12.data = q(14);
+        j13.data = q(0);
+        j14.data = q(1);
+        j15.data = q(2);
         j16.data = q(15);
         j17.data = q(16);
         j18.data = q(17);
         
         // Se prepara la data de posicion deseada
         std::vector<double> rosxd;
-        //rosxd.resize(final.col(count).size());
-        //VectorXd::Map(&rosxd[0], final.col(count).size()) = final.col(count);
+        rosxd.resize(final.col(count).size());
+        VectorXd::Map(&rosxd[0], final.col(count).size()) = final.col(count);
 
         // Se inserta la data en el array
         jdesired.data.clear();
@@ -199,58 +198,58 @@ int main(int argc, char **argv) {
         // Se inserta la data en el array
         rviz_val.position.clear();
         rviz_val.header.stamp = ros::Time::now();
+        rviz_val.position.push_back(rvizq[3]);
         rviz_val.position.push_back(rvizq[6]);
-        rviz_val.position.push_back(rvizq[10]);
-        rviz_val.position.push_back(rvizq[14]);
-        rviz_val.position.push_back(rvizq[7]);
-        rviz_val.position.push_back(rvizq[11]);
-        rviz_val.position.push_back(rvizq[15]);
-        rviz_val.position.push_back(rvizq[8]);
-        rviz_val.position.push_back(rvizq[12]);
-        rviz_val.position.push_back(rvizq[16]);
         rviz_val.position.push_back(rvizq[9]);
+        rviz_val.position.push_back(rvizq[12]);
+        rviz_val.position.push_back(rvizq[4]);
+        rviz_val.position.push_back(rvizq[7]);
+        rviz_val.position.push_back(rvizq[10]);
         rviz_val.position.push_back(rvizq[13]);
-        rviz_val.position.push_back(rvizq[17]);
+        rviz_val.position.push_back(rvizq[5]);
+        rviz_val.position.push_back(rvizq[8]);
+        rviz_val.position.push_back(rvizq[11]);
+        rviz_val.position.push_back(rvizq[14]);
 
         // Se publican los valores del espacio articular
-        pub_leg1m1.publish(j7);
-        pub_leg1m2.publish(j8);
-        pub_leg1m3.publish(j9);
-        pub_leg2m1.publish(j10);
-        pub_leg2m2.publish(j11);
-        pub_leg2m3.publish(j12);
-        pub_leg3m1.publish(j13);
-        pub_leg3m2.publish(j14);
-        pub_leg3m3.publish(j15);
-        pub_leg4m1.publish(j16);
-        pub_leg4m2.publish(j17);
-        pub_leg4m3.publish(j18);
-        pub_posbx.publish(j1);
-        pub_posby.publish(j2);
-        pub_posbz.publish(j3);
-        pub_rotbx.publish(j4);
-        pub_rotby.publish(j5);
-        pub_rotbz.publish(j6);
+        pub_leg1m1.publish(j1);
+        pub_leg1m2.publish(j2);
+        pub_leg1m3.publish(j3);
+        pub_leg2m1.publish(j4);
+        pub_leg2m2.publish(j5);
+        pub_leg2m3.publish(j6);
+        pub_leg3m1.publish(j7);
+        pub_leg3m2.publish(j8);
+        pub_leg3m3.publish(j9);
+        pub_leg4m1.publish(j10);
+        pub_leg4m2.publish(j11);
+        pub_leg4m3.publish(j12);
+        pub_posbx.publish(j13);
+        pub_posby.publish(j14);
+        pub_posbz.publish(j15);
+        pub_rotbx.publish(j16);
+        pub_rotby.publish(j17);
+        pub_rotbz.publish(j18);
         pub_desired.publish(jdesired);
         pub_rviz.publish(rviz_val);
 
         ros::spinOnce();
         loop_rate.sleep();
         
-        // if (count == ind - 1) {
-        //     count = 0;
-        //     posd(0) = posd(2);
-        //     posd(1) = posd(3);
-        //     std::cout << "\nPosicion actual:\n" << " xa: " << posd(0) << "\n ya: " << posd(1);
-        //     std::cout << "\nPosicion deseada:\n" << " xd: ";
-        //     std::cin >> posd(2);
-        //     std::cout << " yd: ";
-        //     std::cin >> posd(3);
-        //     walking(posd, pos, final, ind);
-        // } else if (count < ind - 1) {
-        //     // print_position(qf, myfile, parameters);
-        //     count++;
-        // }
+        if (count == ind - 1) {
+            count = 0;
+            posd(0) = posd(2);
+            posd(1) = posd(3);
+            std::cout << "\nPosicion actual:\n" << " xa: " << posd(0) << "\n ya: " << posd(1);
+            std::cout << "\nPosicion deseada:\n" << " xd: ";
+            std::cin >> posd(2);
+            std::cout << " yd: ";
+            std::cin >> posd(3);
+            walking(posd, pos, final, ind);
+        } else if (count < ind - 1) {
+            // print_position(qf, myfile, parameters);
+            count++;
+        }
     }
-    //myfile.close();
+    myfile.close();
 }
