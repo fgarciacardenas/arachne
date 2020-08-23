@@ -1,14 +1,12 @@
 #define _USE_MATH_DEFINES
-
+#include <bits/stdc++.h> 
+#include <chrono>
+#include <sensor_msgs/JointState.h>
 #include "ros/ros.h"
 #include "std_msgs/Float64.h"
 #include "std_msgs/MultiArrayLayout.h"
 #include "std_msgs/MultiArrayDimension.h"
 #include "std_msgs/Float64MultiArray.h"
-#include <sensor_msgs/JointState.h>
-#include <bits/stdc++.h> 
-#include <chrono>
-
 #include "forward_kinematics.hpp"
 #include "inverse_kinematics.hpp"
 #include "control.hpp"
@@ -18,113 +16,63 @@
 
 
 int main(int argc, char **argv) {
-    // Se inician los nodos y topicos de ROS
-    ros::init(argc, argv, "sendJointsGzNode");
-    ros::start();
-    ros::NodeHandle n;
-
-    // Se publica el espacio articular actual del robot
-    ros::Publisher pub_leg1m1 = n.advertise<std_msgs::Float64>("/robot/joint1_position_controller/command", 10);
-    ros::Publisher pub_leg1m2 = n.advertise<std_msgs::Float64>("/robot/joint2_position_controller/command", 10);
-    ros::Publisher pub_leg1m3 = n.advertise<std_msgs::Float64>("/robot/joint3_position_controller/command", 10);
-    ros::Publisher pub_leg2m1 = n.advertise<std_msgs::Float64>("/robot/joint4_position_controller/command", 10);
-    ros::Publisher pub_leg2m2 = n.advertise<std_msgs::Float64>("/robot/joint5_position_controller/command", 10);
-    ros::Publisher pub_leg2m3 = n.advertise<std_msgs::Float64>("/robot/joint6_position_controller/command", 10);
-    ros::Publisher pub_leg3m1 = n.advertise<std_msgs::Float64>("/robot/joint7_position_controller/command", 10);
-    ros::Publisher pub_leg3m2 = n.advertise<std_msgs::Float64>("/robot/joint8_position_controller/command", 10);
-    ros::Publisher pub_leg3m3 = n.advertise<std_msgs::Float64>("/robot/joint9_position_controller/command", 10);
-    ros::Publisher pub_leg4m1 = n.advertise<std_msgs::Float64>("/robot/joint10_position_controller/command", 10);
-    ros::Publisher pub_leg4m2 = n.advertise<std_msgs::Float64>("/robot/joint11_position_controller/command", 10);
-    ros::Publisher pub_leg4m3 = n.advertise<std_msgs::Float64>("/robot/joint12_position_controller/command", 10);
-    ros::Publisher pub_posbx = n.advertise<std_msgs::Float64>("/robot/joint13_position_controller/command", 10);
-    ros::Publisher pub_posby = n.advertise<std_msgs::Float64>("/robot/joint14_position_controller/command", 10);
-    ros::Publisher pub_posbz = n.advertise<std_msgs::Float64>("/robot/joint15_position_controller/command", 10);
-    ros::Publisher pub_rotbx = n.advertise<std_msgs::Float64>("/robot/joint16_position_controller/command", 10);
-    ros::Publisher pub_rotby = n.advertise<std_msgs::Float64>("/robot/joint17_position_controller/command", 10);
-    ros::Publisher pub_rotbz = n.advertise<std_msgs::Float64>("/robot/joint18_position_controller/command", 10);
-
-    // Se publica el espacio de configuracion deseado del robot
-    ros::Publisher pub_desired = n.advertise<std_msgs::Float64MultiArray>("/desired_pos", 10);
-    ros::Publisher pub_rviz = n.advertise<sensor_msgs::JointState>("/joint_states", 10);
-
-    ros::Rate loop_rate(3.5);
-
-    // Se declaran los mensajes de ROS
-    std_msgs::Float64 j1;
-    std_msgs::Float64 j2;
-    std_msgs::Float64 j3;
-    std_msgs::Float64 j4;
-    std_msgs::Float64 j5;
-    std_msgs::Float64 j6;
-    std_msgs::Float64 j7;
-    std_msgs::Float64 j8;
-    std_msgs::Float64 j9;
-    std_msgs::Float64 j10;
-    std_msgs::Float64 j11;
-    std_msgs::Float64 j12;
-    std_msgs::Float64 j13;
-    std_msgs::Float64 j14;
-    std_msgs::Float64 j15;
-    std_msgs::Float64 j16;
-    std_msgs::Float64 j17;
-    std_msgs::Float64 j18;
-    std_msgs::Float64MultiArray jdesired;
-    sensor_msgs::JointState rviz_val;
-
-    // Se asignan las variables 
-    VectorXd q = VectorXd::Zero(18);
-    Vector3d com_xd;
-    Parameters parameters;
-    MatrixXd qf(parameters.max_iterations, 18);
-    Legs pos;
-    
+    // Variable declaration
+    VectorXd q = VectorXd::Zero(18);            // Joint configuration vector
+    Vector3d com_xd;                            // Desired position of the center of mass
+    Parameters parameters;                      // Parameters for the quadratic optimization
+    MatrixXd qf(parameters.max_iterations, 18); // Intermediate-steps matrix
+    Legs pos;                                   // Robot state class
     pos.update_position(q);
     pos.update_jacobian(q);
 
-    // Desired position[posb, leg1, leg2, leg3, leg4, rotb]:
-    //xd.segment(0, 3)  << 3, 2, 0;
-    //xd.segment(3, 3)  << 3 + pos.leg1(0), 2 + pos.leg1(1), 0 + pos.leg1(2);
-    //xd.segment(6, 3)  << 1 + pos.leg2(0), 0 + pos.leg2(1), 0 + pos.leg2(2);
-    //xd.segment(9, 3)  << 0 + pos.leg3(0), 1 + pos.leg3(1), 0 + pos.leg3(2);
-    //xd.segment(12, 3) << 0 + pos.leg4(0), 0 + pos.leg4(1), 1 + pos.leg4(2);
-    //xd.segment(15, 3) << 0 * pi / 180, 0 * pi / 180, 0 * pi / 180;
+    // ROS node initialization
+    ros::init(argc, argv, "arachneNode");
+    ros::start();
+    ros::NodeHandle n;
+    ros::Rate loop_rate(3.5);
 
-    // Desired position[posb, leg1, leg2, leg3, leg4, rotb]:
+    // ROS publisher for the robot's joint position controller
+    ros::Publisher joint_publisher[q.size()];
+    for (int i = 0; i < q.size(); ++i)
+        joint_publisher[i] = n.advertise<std_msgs::Float64>("/robot/joint" + std::to_string(i+1) + "_position_controller/command", 10);
+
+    // ROS publisher for the robot's desired position
+    ros::Publisher desiredPosition_publisher = n.advertise<std_msgs::Float64MultiArray>("/desired_pos", 10);
+    
+    // ROS publisher for the robot's visualization
+    ros::Publisher rviz_publisher = n.advertise<sensor_msgs::JointState>("/joint_states", 10);
+
+    // ROS messages declaration
+    std_msgs::Float64 joints[q.size()];
+    std_msgs::Float64MultiArray desiredPosition;
+    sensor_msgs::JointState rviz_data;
+
+    // Desired position [posb (base position), rotb (base orientation), leg1, leg2, leg3, leg4]:
     VectorXd xd(18);
     xd.segment( 0, 3) << 0, 0, 0;
-    xd.segment( 3, 3) << 0 * pi / 180, 0 * pi / 180, 0 * pi / 180;
-    xd.segment( 6, 3) << pos.leg1(0), pos.leg1(1), pos.leg1(2);
-    xd.segment( 9, 3) << pos.leg2(0), pos.leg2(1), pos.leg2(2)+2;
+    xd.segment( 3, 3) << 0 * pi/180, 0 * pi/180, 0 * pi/180;
+    xd.segment( 6, 3) << pos.leg1(0), pos.leg1(1), pos.leg1(2) + 6 ;
+    xd.segment( 9, 3) << pos.leg2(0), pos.leg2(1), pos.leg2(2);
     xd.segment(12, 3) << pos.leg3(0), pos.leg3(1), pos.leg3(2);
     xd.segment(15, 3) << pos.leg4(0), pos.leg4(1), pos.leg4(2);
-    
 
-    // Desired position of COM
-    //com_xd = cmass(q);
-    //com_xd << 2, 0.8, -3.8;
-    com_xd << 0, 0, 0;
+    // Desired position of the COM
+    com_xd << 0, 0, 0; //com_xd = cmass(q);
     
-    // Se prepara la data de posiciones actuales
-    std::vector<std::string> names;
-    names.push_back("leg1_motor1");
-    names.push_back("leg2_motor1");
-    names.push_back("leg3_motor1");
-    names.push_back("leg4_motor1");  
-    names.push_back("leg1_motor2");
-    names.push_back("leg2_motor2");
-    names.push_back("leg3_motor2");
-    names.push_back("leg4_motor2");
-    names.push_back("leg1_motor3");
-    names.push_back("leg2_motor3");
-    names.push_back("leg3_motor3");
-    names.push_back("leg4_motor3");
-    
-    // Se inserta la data en el array
-    rviz_val.name.clear();
-    for (int i = 0; i < names.size(); i++)
-        rviz_val.name.push_back(names[i]);
-    
-    int count = 0;
+    // Joint names for the visualization
+    rviz_data.name.clear();
+    rviz_data.name.push_back("leg1_motor1");
+    rviz_data.name.push_back("leg1_motor2");
+    rviz_data.name.push_back("leg1_motor3");
+    rviz_data.name.push_back("leg2_motor1");  
+    rviz_data.name.push_back("leg2_motor2");
+    rviz_data.name.push_back("leg2_motor3");
+    rviz_data.name.push_back("leg3_motor1");
+    rviz_data.name.push_back("leg3_motor2");
+    rviz_data.name.push_back("leg3_motor3");
+    rviz_data.name.push_back("leg4_motor1");
+    rviz_data.name.push_back("leg4_motor2");
+    rviz_data.name.push_back("leg4_motor3");
 
     // // Valores para la caminata
     // int ind = 0;
@@ -144,17 +92,14 @@ int main(int argc, char **argv) {
     //std::ofstream myfile;
     //myfile.open("charlyposgait.txt");
 
+    int count = 0;
     while (ros::ok()) {  
         //std::cout << "Numero de paso" << endl;
         //std::cin >> count;
-        //auto start = std::chrono::system_clock::now();
+        
         // Quadratic program
         quadratic_program(qf, q, xd, parameters, com_xd, pos);
         //quad_prog(qf, q, final.col(count), parameters, com_xd, pos);
-        
-        //auto end = std::chrono::system_clock::now();
-        //std::chrono::duration<float,std::milli> duration = end - start;
-        //std::cout << duration.count() << "s " << endl;
         
         // Compare desired and current positions(x, y, z)
         //compare(xd, com_xd, pos);
@@ -162,24 +107,8 @@ int main(int argc, char **argv) {
         //compare(final.col(count), com_xd, pos);
         //std::cout << endl << q << endl;
 
-        j1.data = q(0);
-        j2.data = q(1);
-        j3.data = q(2);
-        j4.data = q(3);
-        j5.data = q(4);
-        j6.data = q(5);
-        j7.data = q(6);
-        j8.data = q(7);
-        j9.data = q(8);
-        j10.data = q( 9);
-        j11.data = q(10);
-        j12.data = q(11);
-        j13.data = q(12);
-        j14.data = q(13);
-        j15.data = q(14);
-        j16.data = q(15);
-        j17.data = q(16);
-        j18.data = q(17);
+        for (int i = 0; i < q.size(); ++i)
+            joints[i].data = q(i);
         
         // Se prepara la data de posicion deseada
         std::vector<double> rosxd;
@@ -187,9 +116,9 @@ int main(int argc, char **argv) {
         //VectorXd::Map(&rosxd[0], final.col(count).size()) = final.col(count);
 
         // Se inserta la data en el array
-        jdesired.data.clear();
-        for (int i = 0; i < rosxd.size(); i++)
-            jdesired.data.push_back(rosxd[i]);
+        desiredPosition.data.clear();
+        for (int i = 0; i < rosxd.size(); ++i)
+            desiredPosition.data.push_back(rosxd[i]);
 
         // Se prepara la data de configuracion actual
         std::vector<double> rvizq;
@@ -197,42 +126,17 @@ int main(int argc, char **argv) {
         VectorXd::Map(&rvizq[0], q.size()) = q;
 
         // Se inserta la data en el array
-        rviz_val.position.clear();
-        rviz_val.header.stamp = ros::Time::now();
-        rviz_val.position.push_back(rvizq[6]);
-        rviz_val.position.push_back(rvizq[10]);
-        rviz_val.position.push_back(rvizq[14]);
-        rviz_val.position.push_back(rvizq[7]);
-        rviz_val.position.push_back(rvizq[11]);
-        rviz_val.position.push_back(rvizq[15]);
-        rviz_val.position.push_back(rvizq[8]);
-        rviz_val.position.push_back(rvizq[12]);
-        rviz_val.position.push_back(rvizq[16]);
-        rviz_val.position.push_back(rvizq[9]);
-        rviz_val.position.push_back(rvizq[13]);
-        rviz_val.position.push_back(rvizq[17]);
+        rviz_data.position.clear();
+        rviz_data.header.stamp = ros::Time::now();
+        for (int i = 6; i < 18; i++)
+            rviz_data.position.push_back(rvizq[i]);
 
         // Se publican los valores del espacio articular
-        pub_leg1m1.publish(j7);
-        pub_leg1m2.publish(j8);
-        pub_leg1m3.publish(j9);
-        pub_leg2m1.publish(j10);
-        pub_leg2m2.publish(j11);
-        pub_leg2m3.publish(j12);
-        pub_leg3m1.publish(j13);
-        pub_leg3m2.publish(j14);
-        pub_leg3m3.publish(j15);
-        pub_leg4m1.publish(j16);
-        pub_leg4m2.publish(j17);
-        pub_leg4m3.publish(j18);
-        pub_posbx.publish(j1);
-        pub_posby.publish(j2);
-        pub_posbz.publish(j3);
-        pub_rotbx.publish(j4);
-        pub_rotby.publish(j5);
-        pub_rotbz.publish(j6);
-        pub_desired.publish(jdesired);
-        pub_rviz.publish(rviz_val);
+        for (int i = 0; i < q.size(); ++i)
+            joint_publisher[i].publish(joints[i]);
+
+        desiredPosition_publisher.publish(desiredPosition);
+        rviz_publisher.publish(rviz_data);
 
         ros::spinOnce();
         loop_rate.sleep();

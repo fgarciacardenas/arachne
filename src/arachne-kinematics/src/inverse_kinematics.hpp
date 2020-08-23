@@ -105,19 +105,19 @@ void cost_function(Cost_values& cost, const VectorXd& q, const VectorXd& xd, con
     
     // Extended Jacobian of each leg and the floating base
     Vector3d dist = pos.base.segment(0,3) - pos.leg1;
-    extended_leg1 << Matrix3d::Identity(), pos.leg1_jacobian, Matrix<double, 3, 9>::Identity(), skew(dist);
+    extended_leg1 << Matrix3d::Identity(), skew(dist), pos.leg1_jacobian, Matrix<double, 3, 9>::Zero();
     
     dist = pos.base.segment(0,3) - pos.leg2;
-    extended_leg2 << Matrix3d::Identity(), Matrix3d::Zero(), pos.leg2_jacobian, Matrix<double, 3, 6>::Identity(), skew(dist);
+    extended_leg2 << Matrix3d::Identity(), skew(dist), Matrix3d::Zero(), pos.leg2_jacobian, Matrix<double, 3, 6>::Zero();
     
     dist = pos.base.segment(0,3) - pos.leg3;
-    extended_leg3 << Matrix3d::Identity(), Matrix<double, 3, 6>::Identity(), pos.leg3_jacobian, Matrix3d::Zero(), skew(dist);
+    extended_leg3 << Matrix3d::Identity(), skew(dist), Matrix<double, 3, 6>::Zero(), pos.leg3_jacobian, Matrix3d::Zero();
     
     dist = pos.base.segment(0,3) - pos.leg4;
-    extended_leg4 << Matrix3d::Identity(), Matrix<double, 3, 9>::Identity(), pos.leg4_jacobian, skew(dist);
+    extended_leg4 << Matrix3d::Identity(), skew(dist), Matrix<double, 3, 9>::Zero(), pos.leg4_jacobian;
     
     extended_posb << Matrix3d::Identity(), Matrix<double, 3, 15>::Zero();
-    extended_rotb << Matrix<double, 3, 15>::Zero(), Matrix3d::Identity();
+    extended_rotb << Matrix3d::Zero(), Matrix3d::Identity(), Matrix<double, 3, 12>::Zero();
 
     // Position and jacobian of center of mass
     //com_pos(pos.com, q);
@@ -129,12 +129,12 @@ void cost_function(Cost_values& cost, const VectorXd& q, const VectorXd& xd, con
                + w(4) * extended_leg3.transpose()*extended_leg3 + w(5) * extended_leg4.transpose()*extended_leg4;
             // + w(6) * j_com.transpose()*j_com
 
-    VectorXd f = -2 * (w(0) * lambda * (pos.base.segment(0, 3) - xd.segment( 0, 3)).transpose()*extended_posb 
-                     + w(1) * lambda * (pos.base.segment(3, 3) - xd.segment(15, 3)).transpose()*extended_rotb
-                     + w(2) * lambda * (pos.leg1 - xd.segment( 3, 3)).transpose()*extended_leg1
-                     + w(3) * lambda * (pos.leg2 - xd.segment( 6, 3)).transpose()*extended_leg2
-                     + w(4) * lambda * (pos.leg3 - xd.segment( 9, 3)).transpose()*extended_leg3
-                     + w(5) * lambda * (pos.leg4 - xd.segment(12, 3)).transpose()*extended_leg4);
+    VectorXd f = -2 * (w(0) * lambda * (pos.base.segment(0, 3) - xd.segment(0, 3)).transpose()*extended_posb 
+                     + w(1) * lambda * (pos.base.segment(3, 3) - xd.segment(3, 3)).transpose()*extended_rotb
+                     + w(2) * lambda * (pos.leg1 - xd.segment( 6, 3)).transpose()*extended_leg1
+                     + w(3) * lambda * (pos.leg2 - xd.segment( 9, 3)).transpose()*extended_leg2
+                     + w(4) * lambda * (pos.leg3 - xd.segment(12, 3)).transpose()*extended_leg3
+                     + w(5) * lambda * (pos.leg4 - xd.segment(15, 3)).transpose()*extended_leg4);
                   // + w(6) * lamb * (pos.com - com_xd).transpose()*j_com)
 
     cost = { h, f };
